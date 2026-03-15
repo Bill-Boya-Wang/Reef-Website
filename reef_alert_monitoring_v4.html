@@ -1,0 +1,488 @@
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@0,400;0,500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--cw-cream:#FAF7F2;--cw-warm:#F3ECE2;--cw-coral:#D4796A;--cw-coral-light:#F0D5CF;--cw-coral-deep:#A3524A;--cw-coral-pale:#FAE8E3;--cw-sand:#E8DDD0;--cw-ocean:#2C5F5C;--cw-ocean-light:#3D7B77;--cw-teal-muted:#6BA8A0;--cw-text:#3A3530;--cw-muted:#8A8078;--cw-card:#FFFFFF;--cw-border:rgba(58,53,48,0.1);--cw-red:#C0453A;--cw-amber:#C48A32;--cw-green:#5A9E7A}
+body{font-family:'DM Sans',sans-serif;color:var(--cw-text);line-height:1.6}
+
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--cw-border);position:sticky;top:0;background:var(--cw-cream);z-index:100}
+.nav-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:500;color:var(--cw-coral-deep);display:flex;align-items:center;gap:8px}
+.nav-logo svg{width:30px;height:30px}
+.nav-links{display:flex;gap:2px}
+.nav-links button{background:none;border:1px solid transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:#1a1a18;cursor:pointer;padding:7px 14px;border-radius:24px;transition:all 0.2s;font-weight:400}
+.nav-links button:hover{color:var(--cw-coral-deep);background:var(--cw-coral-pale)}
+.nav-links button.active{color:var(--cw-coral-deep);background:var(--cw-coral-pale);border-color:rgba(212,121,106,0.2);font-weight:500}
+
+.page{display:none;animation:fadeUp 0.4s ease}.page.visible{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.hero{padding:0 0 24px;text-align:center;position:relative;overflow:hidden}
+.ocean-scene{position:relative;width:100%;height:260px;margin-bottom:20px;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#B8D8E8 0%,#7FB8CC 30%,#4A9BAF 55%,#2E7D8A 70%,#1B5E6B 85%,#0F3D47 100%)}
+.ocean-scene .sun{position:absolute;top:24px;right:80px;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle,#FDE8C9 0%,#F5C98A 40%,rgba(245,201,138,0) 70%)}
+.ocean-scene .sun-glow{position:absolute;top:14px;right:70px;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,rgba(253,232,201,0.3) 0%,transparent 70%)}
+.wave{position:absolute;width:200%;left:-50%}
+.wave1{bottom:80px;height:30px;background:rgba(255,255,255,0.08);border-radius:50% 50% 0 0;animation:drift 8s ease-in-out infinite}
+.wave2{bottom:65px;height:25px;background:rgba(255,255,255,0.06);border-radius:50% 50% 0 0;animation:drift 10s ease-in-out infinite reverse}
+.wave3{bottom:55px;height:20px;background:rgba(255,255,255,0.04);border-radius:50% 50% 0 0;animation:drift 12s ease-in-out infinite}
+@keyframes drift{0%,100%{transform:translateX(0)}50%{transform:translateX(3%)}}
+.ocean-floor{position:absolute;bottom:0;left:0;right:0;height:70px}
+.fish{position:absolute;animation:swim 14s linear infinite}
+.fish2{animation:swim2 18s linear infinite}
+@keyframes swim{0%{transform:translateX(-40px)}100%{transform:translateX(820px)}}
+@keyframes swim2{0%{transform:translateX(820px) scaleX(-1)}100%{transform:translateX(-40px) scaleX(-1)}}
+.bubble{position:absolute;border-radius:50%;background:rgba(255,255,255,0.15);animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(0) scale(1);opacity:0.6}100%{transform:translateY(-180px) scale(0.3);opacity:0}}
+.hero-overlay{position:absolute;bottom:0;left:0;right:0;padding:32px 20px 24px;background:linear-gradient(0deg,rgba(15,61,71,0.88) 0%,rgba(15,61,71,0.5) 60%,transparent 100%);text-align:center}
+.hero-overlay h1{font-family:'Playfair Display',serif;font-size:30px;font-weight:400;color:#fff;margin-bottom:6px;letter-spacing:-0.5px;text-shadow:0 1px 8px rgba(0,0,0,0.2)}
+.hero-overlay p{color:rgba(255,255,255,0.8);font-size:13px;max-width:440px;margin:0 auto 16px}
+.hero-cta{display:inline-flex;align-items:center;gap:6px;padding:11px 28px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;background:var(--cw-coral);color:#1a1a18;transition:all 0.2s}
+.hero-cta:hover{background:var(--cw-coral-deep);color:#fff}
+.live-badge{display:inline-flex;align-items:center;gap:6px;background:var(--cw-coral-pale);color:var(--cw-coral-deep);font-size:11px;font-weight:500;padding:5px 14px;border-radius:20px;margin-bottom:14px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--cw-red);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}
+.metric{background:var(--cw-card);border:1px solid var(--cw-border);border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.metric::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.metric:nth-child(1)::after{background:var(--cw-ocean)}
+.metric:nth-child(2)::after{background:var(--cw-amber)}
+.metric:nth-child(3)::after{background:var(--cw-red)}
+.metric:nth-child(4)::after{background:var(--cw-teal-muted)}
+.metric-label{font-size:11px;color:var(--cw-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.metric-val{font-size:22px;font-weight:500}
+.metric-sub{font-size:11px;color:var(--cw-muted);margin-top:2px}
+
+.map-container{background:var(--cw-card);border:1px solid var(--cw-border);border-radius:14px;padding:20px;margin:20px 0;position:relative;overflow:hidden}
+.map-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.map-title{font-size:15px;font-weight:500;color:var(--cw-text)}
+.map-legend{display:flex;gap:14px;font-size:11px;color:var(--cw-muted)}
+.map-legend span{display:flex;align-items:center;gap:5px}
+.map-legend .dot{width:9px;height:9px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.08)}
+.tooltip-box{position:absolute;background:var(--cw-text);color:#fff;font-size:11px;padding:10px 14px;border-radius:10px;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:10;max-width:210px;line-height:1.5}
+.tooltip-box.show{opacity:1}
+
+.section-head{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:var(--cw-text);margin:32px 0 14px;display:flex;align-items:center;gap:10px}
+.section-head .accent{width:24px;height:2px;background:var(--cw-coral);border-radius:2px}
+
+.search-bar{display:flex;gap:8px;margin:14px 0 16px;position:relative}
+.search-bar input{flex:1;padding:11px 14px 11px 38px;border:1px solid var(--cw-border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--cw-card);color:var(--cw-text);outline:none;transition:border 0.2s}
+.search-bar input:focus{border-color:var(--cw-coral)}
+.search-bar input::placeholder{color:var(--cw-muted)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--cw-muted);pointer-events:none}
+.search-results{background:var(--cw-card);border:1px solid var(--cw-border);border-radius:10px;margin-top:-8px;margin-bottom:16px;overflow:hidden;display:none}
+.search-result-item{padding:10px 14px;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--cw-border);transition:background 0.15s}
+.search-result-item:last-child{border-bottom:none}
+.search-result-item:hover{background:var(--cw-coral-pale)}
+.search-result-item .sr-name{font-weight:500;color:var(--cw-text)}
+.search-result-item .sr-region{font-size:11px;color:var(--cw-muted)}
+.search-result-item .sr-status{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px}
+
+.bleach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.bleach-card{background:var(--cw-card);border:1px solid var(--cw-border);border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.bleach-card .bar{position:absolute;bottom:0;left:0;right:0;height:3px}
+.bleach-region{font-size:13px;font-weight:500;margin-bottom:4px;color:var(--cw-text)}
+.bleach-pct{font-size:24px;font-weight:500}
+.bleach-delta{font-size:11px;margin-top:2px;color:var(--cw-muted)}
+
+.alert-list{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.alert-item{display:flex;align-items:center;gap:12px;background:var(--cw-card);border:1px solid var(--cw-border);border-radius:14px;padding:14px 16px}
+.alert-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.alert-icon.critical{background:var(--cw-coral-pale);color:var(--cw-red)}
+.alert-icon.warning{background:#FDF2E0;color:var(--cw-amber)}
+.alert-name{font-size:13px;font-weight:500;color:var(--cw-text)}
+.alert-desc{font-size:11px;color:var(--cw-muted);margin-top:2px}
+.alert-severity{margin-left:auto;font-size:11px;font-weight:500;padding:4px 12px;border-radius:20px;flex-shrink:0}
+.alert-severity.critical{background:var(--cw-coral-pale);color:var(--cw-coral-deep)}
+.alert-severity.warning{background:#FDF2E0;color:#8B6320}
+
+.feed-container{background:var(--cw-card);border:1px solid var(--cw-border);border-radius:14px;padding:16px;margin:20px 0;max-height:180px;overflow-y:auto}
+.feed-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--cw-border);font-size:12px;color:var(--cw-text)}
+.feed-item:last-child{border-bottom:none}
+.feed-time{color:var(--cw-muted);font-size:10px;white-space:nowrap;min-width:55px;margin-top:1px}
+.feed-src{font-weight:500;color:var(--cw-coral-deep)}
+
+.chart-wrap{background:var(--cw-card);border:1px solid var(--cw-border);border-radius:14px;padding:20px;margin:20px 0}
+.chart-area{position:relative;height:220px}
+
+.donate-page{text-align:center;padding:40px 0}
+.donate-page h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:400;color:var(--cw-text);margin-bottom:8px}
+.donate-page p{color:var(--cw-muted);font-size:14px;max-width:420px;margin:0 auto 24px}
+.donate-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0;text-align:left}
+.tier{background:var(--cw-card);border:1px solid var(--cw-border);border-radius:14px;padding:20px;transition:all 0.25s;cursor:pointer}
+.tier:hover{border-color:var(--cw-coral);transform:translateY(-2px)}
+.tier.featured{border:2px solid var(--cw-coral)}
+.tier-name{font-size:11px;color:var(--cw-coral-deep);text-transform:uppercase;letter-spacing:0.5px;font-weight:500}
+.tier-price{font-size:28px;font-weight:500;color:var(--cw-text);margin:8px 0}
+.tier-price span{font-size:13px;color:var(--cw-muted);font-weight:400}
+.tier-desc{font-size:12px;color:var(--cw-muted);line-height:1.5}
+.tier-items{list-style:none;margin-top:12px;font-size:12px}
+.tier-items li{padding:4px 0;color:var(--cw-muted)}
+.tier-items li::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--cw-coral-light);margin-right:8px;vertical-align:middle}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 28px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;border:none;color:#1a1a18}
+.btn-primary{background:var(--cw-coral);color:#1a1a18}
+.btn-primary:hover{background:var(--cw-coral-deep);color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--cw-sand);color:#1a1a18}
+.btn-outline:hover{background:var(--cw-coral-pale);border-color:rgba(212,121,106,0.3);color:var(--cw-coral-deep)}
+
+.work-page{padding:32px 0}
+.work-page h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:400;color:var(--cw-text);margin-bottom:8px;text-align:center}
+.work-page>p{color:var(--cw-muted);font-size:14px;text-align:center;max-width:440px;margin:0 auto 28px}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.role{background:var(--cw-card);border:1px solid var(--cw-border);border-radius:14px;padding:20px}
+.role-tag{font-size:10px;color:var(--cw-coral-deep);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;background:var(--cw-coral-pale);display:inline-block;padding:2px 8px;border-radius:6px}
+.role h3{font-size:15px;font-weight:500;margin:8px 0 4px;color:var(--cw-text)}
+.role p{font-size:12px;color:var(--cw-muted);line-height:1.5}
+
+.signup-page{max-width:420px;margin:0 auto;padding:40px 0;text-align:center}
+.signup-page h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:400;color:var(--cw-text);margin-bottom:8px}
+.signup-page>p{color:var(--cw-muted);font-size:14px;margin-bottom:24px}
+.form-group{text-align:left;margin-bottom:14px}
+.form-group label{display:block;font-size:12px;color:var(--cw-muted);margin-bottom:5px}
+.form-group input,.form-group select{width:100%;padding:11px 14px;border:1px solid var(--cw-border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--cw-card);color:var(--cw-text);outline:none;transition:border 0.2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--cw-coral)}
+.form-group select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A8078' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.success-msg{background:var(--cw-coral-pale);color:var(--cw-coral-deep);padding:14px 18px;border-radius:10px;font-size:13px;display:none;margin-top:16px}
+.partners{display:flex;gap:20px;justify-content:center;margin:32px 0;flex-wrap:wrap}
+.partner{background:var(--cw-warm);border-radius:12px;padding:14px 24px;font-size:11px;color:var(--cw-muted);text-align:center}
+.partner strong{display:block;font-size:13px;color:var(--cw-text);margin-bottom:2px}
+</style>
+
+<div style="max-width:780px;margin:0 auto;padding:0 16px;background:var(--cw-cream);border-radius:16px;">
+
+<nav class="nav">
+<div class="nav-logo">
+<svg viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="14" fill="#F0D5CF"/><path d="M7 20c3-5 6-3 9-6s3-7 8-5" stroke="#D4796A" stroke-width="2" stroke-linecap="round"/><path d="M5 16c4-3 7 1 10-1s4-5 10-3" stroke="#A3524A" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/><circle cx="11" cy="15" r="2" fill="#D4796A" opacity="0.4"/><circle cx="19" cy="12" r="1.5" fill="#D4796A" opacity="0.6"/></svg>
+Reef Alert
+</div>
+<div class="nav-links">
+<button class="active" onclick="showPage('dashboard')">Dashboard</button>
+<button onclick="showPage('donate')">Donate</button>
+<button onclick="showPage('work')">Work with us</button>
+<button onclick="showPage('alerts')">Alerts</button>
+</div>
+</nav>
+
+<div id="page-dashboard" class="page visible">
+<div class="hero">
+<div style="text-align:center;padding-top:20px"><div class="live-badge"><span class="live-dot"></span>Live monitoring — 847 sensors active</div></div>
+<div class="ocean-scene">
+<div class="sun-glow"></div>
+<div class="sun"></div>
+<div class="wave wave1"></div>
+<div class="wave wave2"></div>
+<div class="wave wave3"></div>
+<div class="bubble" style="left:15%;bottom:80px;width:4px;height:4px;animation-duration:6s;animation-delay:0s"></div>
+<div class="bubble" style="left:35%;bottom:70px;width:3px;height:3px;animation-duration:7s;animation-delay:2s"></div>
+<div class="bubble" style="left:55%;bottom:75px;width:5px;height:5px;animation-duration:5s;animation-delay:1s"></div>
+<div class="bubble" style="left:72%;bottom:65px;width:3px;height:3px;animation-duration:8s;animation-delay:3s"></div>
+<div class="bubble" style="left:88%;bottom:80px;width:4px;height:4px;animation-duration:6.5s;animation-delay:4s"></div>
+<svg class="fish" style="top:80px;left:-40px" width="24" height="14" viewBox="0 0 24 14"><path d="M0 7l6-5v3h12c3 0 5 2 5 2s-2 2-5 2H6v3z" fill="rgba(255,255,255,0.2)"/></svg>
+<svg class="fish2" style="top:120px;right:0" width="20" height="12" viewBox="0 0 20 12"><path d="M0 6l5-4v2.5h10c2.5 0 4 1.5 4 1.5s-1.5 1.5-4 1.5H5V10z" fill="rgba(255,255,255,0.15)"/></svg>
+<div class="ocean-floor">
+<svg style="position:absolute;bottom:0;left:0;width:100%;height:70px" viewBox="0 0 800 70" preserveAspectRatio="none">
+<path d="M0 70V40c20-5 40 5 60 0s30-15 50-10 25 15 50 8 30-12 50-5 25 10 45 5 20-8 40-3 30 10 50 7 25-5 45-2 20 8 40 3 25-3 45 0 30 5 50 2 20-4 40 0 25 6 45 3 20-5 40-2V70z" fill="#0F3D47"/><path d="M0 70V50c15-3 30 4 50 0s20-8 40-3 25 8 45 3 30-5 50 0 20 6 40 3 25-4 45-1 30 5 50 2 20-3 40 0 25 4 45 1 30-3 50 0 20 5 40 2V70z" fill="#1A4F5A"/>
+</svg>
+<svg style="position:absolute;bottom:2px;left:10%" width="40" height="45" viewBox="0 0 40 45"><path d="M20 45V15" stroke="#D4796A" stroke-width="2"/><path d="M20 15c-8-3-14 2-14 8s6 8 14 5" fill="#D4796A" opacity="0.6"/><path d="M20 20c6-4 12 0 12 6s-6 7-12 4" fill="#E8977A" opacity="0.5"/></svg>
+<svg style="position:absolute;bottom:2px;left:30%" width="35" height="35" viewBox="0 0 35 35"><path d="M17 35V10" stroke="#C0453A" stroke-width="1.5"/><path d="M17 10c-6-2-10 2-10 6s5 6 10 4" fill="#C0453A" opacity="0.5"/><path d="M17 14c5-3 9 1 9 5s-4 5-9 3" fill="#D4796A" opacity="0.4"/></svg>
+<svg style="position:absolute;bottom:2px;left:55%" width="50" height="50" viewBox="0 0 50 50"><path d="M25 50V12" stroke="#D4796A" stroke-width="2.5"/><path d="M25 12c-10-4-18 3-18 10s8 10 18 6" fill="#E8977A" opacity="0.5"/><path d="M25 18c8-5 15 1 15 8s-7 8-15 5" fill="#D4796A" opacity="0.6"/><circle cx="12" cy="20" r="2" fill="#F0D5CF" opacity="0.4"/></svg>
+<svg style="position:absolute;bottom:2px;left:75%" width="30" height="32" viewBox="0 0 30 32"><path d="M15 32V8" stroke="#C48A32" stroke-width="1.5"/><path d="M15 8c-5-2-9 1-9 5s4 5 9 3" fill="#C48A32" opacity="0.4"/><path d="M15 12c4-2 8 1 8 4s-4 4-8 2" fill="#D4A64A" opacity="0.3"/></svg>
+<svg style="position:absolute;bottom:5px;left:90%" width="20" height="18" viewBox="0 0 20 18"><ellipse cx="10" cy="14" rx="10" ry="4" fill="#5A9E7A" opacity="0.3"/><ellipse cx="10" cy="10" rx="7" ry="3" fill="#5A9E7A" opacity="0.25"/></svg>
+<svg style="position:absolute;bottom:5px;left:4%" width="18" height="16" viewBox="0 0 18 16"><ellipse cx="9" cy="12" rx="9" ry="4" fill="#6BA8A0" opacity="0.3"/><ellipse cx="9" cy="9" rx="6" ry="2.5" fill="#6BA8A0" opacity="0.2"/></svg>
+</div>
+<div class="hero-overlay">
+<h1>Global reef health intelligence</h1>
+<p>ML-powered predictions from satellite imagery, ocean sensors, and climate models. Updated every 15 minutes.</p>
+<button class="hero-cta" onclick="showPage('alerts');document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.nav-links button')[3].classList.add('active')">Sign up to be alerted</button>
+</div>
+</div>
+</div>
+
+<div class="metrics" id="metrics-grid"></div>
+
+<div class="map-container">
+<div class="map-header">
+<span class="map-title">Reef monitoring stations</span>
+<div class="map-legend">
+<span><span class="dot" style="background:var(--cw-green)"></span>Healthy</span>
+<span><span class="dot" style="background:var(--cw-amber)"></span>Stressed</span>
+<span><span class="dot" style="background:var(--cw-red)"></span>Bleaching</span>
+<span><span class="dot" style="background:var(--cw-sand)"></span>Sensor</span>
+</div>
+</div>
+<div id="tooltip" class="tooltip-box"></div>
+<svg style="width:100%;height:auto" viewBox="0 0 800 380" id="reef-map">
+<rect width="800" height="380" fill="var(--cw-warm)" rx="8"/>
+<path d="M120 80 L160 60 L200 70 L220 90 L240 85 L260 100 L250 120 L220 130 L200 140 L170 130 L140 120 L120 100Z" fill="#E8DDD0" opacity="0.7"/>
+<path d="M300 40 L450 30 L520 50 L540 80 L530 120 L500 140 L480 130 L440 110 L400 100 L380 120 L350 110 L320 90 L300 70Z" fill="#E8DDD0" opacity="0.7"/>
+<path d="M550 50 L620 40 L680 60 L700 90 L690 120 L660 130 L630 110 L580 100 L560 80Z" fill="#E8DDD0" opacity="0.7"/>
+<path d="M140 160 L180 150 L200 170 L190 200 L170 220 L150 240 L130 230 L120 200 L130 180Z" fill="#E8DDD0" opacity="0.7"/>
+<path d="M280 160 L350 140 L400 160 L380 200 L340 210 L300 200 L270 180Z" fill="#E8DDD0" opacity="0.7"/>
+<path d="M500 160 L560 150 L600 170 L620 200 L600 230 L570 240 L540 230 L510 200 L500 180Z" fill="#E8DDD0" opacity="0.7"/>
+<path d="M620 200 L680 190 L720 220 L710 260 L680 270 L640 250 L620 230Z" fill="#E8DDD0" opacity="0.7"/>
+<path d="M350 260 L400 240 L440 260 L430 300 L400 320 L370 310 L350 290Z" fill="#E8DDD0" opacity="0.7"/>
+</svg>
+</div>
+
+<div class="section-head"><span class="accent"></span>Predicted bleaching — next 14 days</div>
+
+<div class="search-bar" id="search-bar">
+<svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+<input type="text" id="reef-search" placeholder="Search for coral reefs in your area..." oninput="handleSearch(this.value)" onfocus="if(this.value.length>0)handleSearch(this.value)">
+</div>
+<div class="search-results" id="search-results"></div>
+
+<div class="bleach-grid" id="bleach-grid"></div>
+
+<div class="section-head"><span class="accent"></span>Highest concern this week</div>
+<div class="alert-list" id="alert-list"></div>
+
+<div class="chart-wrap">
+<div class="map-header">
+<span class="map-title">Sea surface temperature trend (30 days)</span>
+<span style="font-size:11px;color:var(--cw-muted)">Source: NOAA Coral Reef Watch</span>
+</div>
+<div class="chart-area"><canvas id="sstChart"></canvas></div>
+</div>
+
+<div class="section-head"><span class="accent"></span>Live data feed</div>
+<div class="feed-container" id="live-feed"></div>
+</div>
+
+<div id="page-donate" class="page">
+<div class="donate-page">
+<svg style="width:60px;height:60px;margin-bottom:16px" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="28" fill="var(--cw-coral-pale)"/><path d="M15 35c6-10 12-5 17-10s6-14 14-9" stroke="var(--cw-coral)" stroke-width="2.5" stroke-linecap="round"/><path d="M12 28c8-4 12 2 18-2s8-10 18-5" stroke="var(--cw-coral-light)" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="3" fill="var(--cw-coral)" opacity="0.3"/><circle cx="38" cy="22" r="2" fill="var(--cw-coral)" opacity="0.4"/></svg>
+<h2>Protect our reefs</h2>
+<p>Your contribution directly funds sensor deployment, ML model training, and emergency reef response teams worldwide.</p>
+<div style="margin:20px auto;max-width:200px">
+<svg width="140" height="140" viewBox="0 0 140 140"><circle cx="70" cy="70" r="60" fill="none" stroke="var(--cw-coral-pale)" stroke-width="8"/><circle cx="70" cy="70" r="60" fill="none" stroke="var(--cw-coral)" stroke-width="8" stroke-dasharray="377" stroke-dashoffset="113" stroke-linecap="round" transform="rotate(-90 70 70)"/><text x="70" y="64" text-anchor="middle" font-size="22" font-weight="500" fill="var(--cw-text)" font-family="DM Sans">70%</text><text x="70" y="82" text-anchor="middle" font-size="11" fill="var(--cw-muted)" font-family="DM Sans">of $2M goal</text></svg>
+</div>
+<div class="donate-tiers">
+<div class="tier" onclick="selectTier(this)"><div class="tier-name">Guardian</div><div class="tier-price">$25<span>/month</span></div><div class="tier-desc">Support one monitoring station</div><ul class="tier-items"><li>Monthly reef report</li><li>Name on supporter wall</li><li>Email updates</li></ul></div>
+<div class="tier featured" onclick="selectTier(this)"><div class="tier-name">Protector</div><div class="tier-price">$75<span>/month</span></div><div class="tier-desc">Fund ML model improvements</div><ul class="tier-items"><li>All guardian perks</li><li>Quarterly video briefing</li><li>Early access to data</li></ul></div>
+<div class="tier" onclick="selectTier(this)"><div class="tier-name">Champion</div><div class="tier-price">$200<span>/month</span></div><div class="tier-desc">Deploy new sensor hardware</div><ul class="tier-items"><li>All protector perks</li><li>Name a sensor station</li><li>Annual reef dive trip</li></ul></div>
+</div>
+<button class="btn btn-primary" style="width:100%;max-width:320px;padding:14px 28px;" onclick="document.getElementById('donate-success').style.display='block'">Donate now</button>
+<div id="donate-success" class="success-msg" style="max-width:340px;margin:16px auto 0;">Thank you for your generous contribution. A confirmation email has been sent.</div>
+<div class="partners">
+<div class="partner"><strong>NOAA</strong>Data partner</div>
+<div class="partner"><strong>Reef Check</strong>Field teams</div>
+<div class="partner"><strong>Allen Coral Atlas</strong>Satellite imagery</div>
+<div class="partner"><strong>Google Earth</strong>Compute partner</div>
+</div>
+</div>
+</div>
+
+<div id="page-work" class="page">
+<div class="work-page">
+<svg style="width:50px;height:50px;margin:0 auto 16px;display:block" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="23" fill="var(--cw-coral-pale)"/><path d="M12 32c5-8 10-4 14-8s5-12 12-7" stroke="var(--cw-coral)" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="26" r="2.5" fill="var(--cw-coral)" opacity="0.3"/><circle cx="32" cy="20" r="2" fill="var(--cw-coral)" opacity="0.4"/></svg>
+<h2>Work with us</h2>
+<p>Join a team of marine biologists, ML engineers, and ocean advocates building the future of reef conservation.</p>
+<div class="roles">
+<div class="role"><div class="role-tag">Engineering</div><h3>ML research engineer</h3><p>Develop and improve coral bleaching prediction models using satellite and sensor data. PyTorch, remote sensing experience preferred.</p><button class="btn btn-outline" style="margin-top:12px;font-size:12px" onclick="sendPrompt('Tell me more about the ML research engineer role at Reef Alert')">Learn more</button></div>
+<div class="role"><div class="role-tag">Engineering</div><h3>Data pipeline engineer</h3><p>Build real-time ingestion pipelines for ocean sensor networks. Experience with streaming data and geospatial systems.</p><button class="btn btn-outline" style="margin-top:12px;font-size:12px" onclick="sendPrompt('Tell me more about the data pipeline engineer role')">Learn more</button></div>
+<div class="role"><div class="role-tag">Science</div><h3>Marine biologist</h3><p>Lead field validation of model predictions. Coordinate with local reef monitoring teams and ground-truth satellite observations.</p><button class="btn btn-outline" style="margin-top:12px;font-size:12px" onclick="sendPrompt('Tell me more about the marine biologist role')">Learn more</button></div>
+<div class="role"><div class="role-tag">Operations</div><h3>Sensor deployment lead</h3><p>Manage global sensor network logistics. Coordinate installation, maintenance, and calibration of reef monitoring hardware.</p><button class="btn btn-outline" style="margin-top:12px;font-size:12px" onclick="sendPrompt('Tell me more about the sensor deployment lead role')">Learn more</button></div>
+<div class="role"><div class="role-tag">Design</div><h3>Product designer</h3><p>Design the interfaces that make complex ocean data accessible to researchers, policymakers, and the public.</p><button class="btn btn-outline" style="margin-top:12px;font-size:12px" onclick="sendPrompt('Tell me more about the product designer role')">Learn more</button></div>
+<div class="role"><div class="role-tag">Outreach</div><h3>Community partnerships manager</h3><p>Build relationships with coastal communities, dive operators, and conservation organizations worldwide.</p><button class="btn btn-outline" style="margin-top:12px;font-size:12px" onclick="sendPrompt('Tell me more about the community partnerships role')">Learn more</button></div>
+</div>
+</div>
+</div>
+
+<div id="page-alerts" class="page">
+<div class="signup-page">
+<svg style="width:50px;height:50px;margin:0 auto 16px;display:block" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="23" fill="var(--cw-coral-pale)"/><path d="M25 12v10l7 4" stroke="var(--cw-coral)" stroke-width="2" stroke-linecap="round"/><circle cx="25" cy="25" r="12" fill="none" stroke="var(--cw-coral-light)" stroke-width="1.5"/><circle cx="25" cy="25" r="18" fill="none" stroke="var(--cw-coral-light)" stroke-width="1" opacity="0.4"/></svg>
+<h2>Reef condition alerts</h2>
+<p>Get notified when bleaching risk changes in your region. Powered by our ML prediction model.</p>
+<div class="form-group"><label>Full name</label><input type="text" placeholder="Jane Doe"></div>
+<div class="form-group"><label>Email</label><input type="email" placeholder="jane@example.com"></div>
+<div class="form-group"><label>Region of interest</label>
+<select><option value="">Select a reef region...</option><option>Great Barrier Reef, Australia</option><option>Coral Triangle, Southeast Asia</option><option>Mesoamerican Reef, Caribbean</option><option>Red Sea Coral Reefs</option><option>Hawaiian Reef Chain</option><option>Maldives Atolls</option><option>Florida Keys, USA</option><option>Fiji & Tonga Reefs</option></select></div>
+<div class="form-group"><label>Alert frequency</label>
+<select><option>Real-time (as conditions change)</option><option>Daily digest</option><option>Weekly summary</option></select></div>
+<button class="btn btn-primary" style="width:100%;padding:14px;" onclick="document.getElementById('alert-success').style.display='block'">Subscribe to alerts</button>
+<div id="alert-success" class="success-msg">You're subscribed. We'll send your first reef condition report within 24 hours.</div>
+</div>
+</div>
+
+</div>
+
+<script>
+function showPage(id){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('visible'));
+document.getElementById('page-'+id).classList.add('visible');
+document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active'));
+var btns=document.querySelectorAll('.nav-links button');
+var map={dashboard:0,donate:1,work:2,alerts:3};
+if(map[id]!==undefined)btns[map[id]].classList.add('active');
+}
+function selectTier(el){document.querySelectorAll('.tier').forEach(t=>t.classList.remove('featured'));el.classList.add('featured')}
+
+var allReefSearchData=[
+{name:"Great Barrier Reef",region:"Queensland, Australia",status:"stressed",pct:32,color:"#C48A32"},
+{name:"Coral Triangle",region:"Southeast Asia",status:"bleaching",pct:48,color:"#C0453A"},
+{name:"Mesoamerican Reef",region:"Belize / Mexico",status:"healthy",pct:8,color:"#5A9E7A"},
+{name:"Red Sea Reefs",region:"Egypt / Saudi Arabia",status:"healthy",pct:12,color:"#5A9E7A"},
+{name:"Hawaiian Reef Chain",region:"Hawaii, USA",status:"stressed",pct:22,color:"#C48A32"},
+{name:"Maldives Atolls",region:"Indian Ocean",status:"bleaching",pct:41,color:"#C0453A"},
+{name:"Florida Keys Reef",region:"Florida, USA",status:"stressed",pct:28,color:"#C48A32"},
+{name:"Fiji Barrier Reef",region:"South Pacific",status:"healthy",pct:6,color:"#5A9E7A"},
+{name:"Andaman Sea Reefs",region:"Thailand",status:"stressed",pct:25,color:"#C48A32"},
+{name:"New Caledonia Reef",region:"Melanesia",status:"healthy",pct:4,color:"#5A9E7A"},
+{name:"Mozambique Channel",region:"East Africa",status:"stressed",pct:19,color:"#C48A32"},
+{name:"Galapagos Reef",region:"Ecuador",status:"healthy",pct:7,color:"#5A9E7A"},
+{name:"Ningaloo Reef",region:"Western Australia",status:"healthy",pct:9,color:"#5A9E7A"},
+{name:"Tubbataha Reef",region:"Philippines",status:"stressed",pct:20,color:"#C48A32"},
+{name:"Raja Ampat Reef",region:"Indonesia",status:"stressed",pct:26,color:"#C48A32"},
+{name:"Bermuda Platform Reef",region:"North Atlantic",status:"healthy",pct:11,color:"#5A9E7A"},
+{name:"Okinawa Reef",region:"Japan",status:"stressed",pct:18,color:"#C48A32"},
+{name:"Aldabra Atoll",region:"Seychelles",status:"healthy",pct:5,color:"#5A9E7A"},
+];
+
+var statusBg={healthy:"rgba(90,158,122,0.12)",stressed:"rgba(196,138,50,0.12)",bleaching:"rgba(192,69,58,0.12)"};
+var statusColor={healthy:"#3B6D3B",stressed:"#8B6320",bleaching:"#A32D2D"};
+
+function handleSearch(val){
+var sr=document.getElementById('search-results');
+if(val.length<1){sr.style.display='none';return}
+var q=val.toLowerCase();
+var matches=allReefSearchData.filter(function(r){return r.name.toLowerCase().indexOf(q)>-1||r.region.toLowerCase().indexOf(q)>-1});
+if(matches.length===0){sr.style.display='none';return}
+sr.innerHTML='';
+matches.slice(0,5).forEach(function(r){
+var d=document.createElement('div');
+d.className='search-result-item';
+d.innerHTML='<div><span class="sr-name">'+r.name+'</span><br><span class="sr-region">'+r.region+'</span></div><span class="sr-status" style="background:'+statusBg[r.status]+';color:'+statusColor[r.status]+'">'+r.pct+'% bleach risk \u00B7 '+r.status+'</span>';
+sr.appendChild(d);
+});
+sr.style.display='block';
+}
+document.addEventListener('click',function(e){
+if(!document.getElementById('search-bar').contains(e.target)&&!document.getElementById('search-results').contains(e.target)){
+document.getElementById('search-results').style.display='none';
+}
+});
+
+const reefs=[
+{name:"Great Barrier Reef",x:640,y:210,health:"stressed",temp:28.4,bleach:32,sensors:156,region:"Australia"},
+{name:"Coral Triangle",x:610,y:170,health:"bleaching",temp:30.1,bleach:48,sensors:89,region:"SE Asia"},
+{name:"Mesoamerican Reef",x:200,y:155,health:"healthy",temp:26.8,bleach:8,sensors:64,region:"Caribbean"},
+{name:"Red Sea Reefs",x:440,y:140,health:"healthy",temp:27.2,bleach:12,sensors:41,region:"Middle East"},
+{name:"Hawaiian Chain",x:100,y:120,health:"stressed",temp:27.9,bleach:22,sensors:73,region:"Pacific"},
+{name:"Maldives Atolls",x:500,y:180,health:"bleaching",temp:29.8,bleach:41,sensors:52,region:"Indian Ocean"},
+{name:"Florida Keys",x:210,y:130,health:"stressed",temp:28.1,bleach:28,sensors:88,region:"USA"},
+{name:"Fiji Reefs",x:720,y:240,health:"healthy",temp:26.5,bleach:6,sensors:34,region:"South Pacific"},
+{name:"Andaman Sea",x:560,y:165,health:"stressed",temp:28.6,bleach:25,sensors:47,region:"Thailand"},
+{name:"New Caledonia",x:690,y:250,health:"healthy",temp:26.1,bleach:4,sensors:28,region:"Melanesia"},
+{name:"Mozambique Channel",x:450,y:240,health:"stressed",temp:27.7,bleach:19,sensors:31,region:"East Africa"},
+{name:"Galapagos",x:160,y:195,health:"healthy",temp:25.9,bleach:7,sensors:22,region:"Ecuador"},
+];
+const colors={healthy:"#5A9E7A",stressed:"#C48A32",bleaching:"#C0453A"};
+const sensorLocs=[{x:645,y:215},{x:660,y:200},{x:625,y:225},{x:615,y:175},{x:600,y:160},{x:205,y:150},{x:195,y:165},{x:445,y:135},{x:105,y:115},{x:95,y:130},{x:505,y:175},{x:495,y:185},{x:215,y:125},{x:225,y:135},{x:725,y:235},{x:565,y:160},{x:695,y:245},{x:455,y:235},{x:165,y:190},{x:550,y:170},{x:635,y:205},{x:200,y:158}];
+const map=document.getElementById('reef-map');
+const tip=document.getElementById('tooltip');
+
+sensorLocs.forEach(s=>{
+const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+c.setAttribute("cx",s.x);c.setAttribute("cy",s.y);c.setAttribute("r","3");
+c.setAttribute("fill","#E8DDD0");c.setAttribute("stroke","#D3C8BA");c.setAttribute("stroke-width","1");
+map.appendChild(c);
+});
+
+reefs.forEach(r=>{
+const g=document.createElementNS("http://www.w3.org/2000/svg","g");
+g.style.cursor='pointer';
+const outer=document.createElementNS("http://www.w3.org/2000/svg","circle");
+outer.setAttribute("cx",r.x);outer.setAttribute("cy",r.y);outer.setAttribute("r","12");
+outer.setAttribute("fill",colors[r.health]);outer.setAttribute("opacity","0.2");
+const inner=document.createElementNS("http://www.w3.org/2000/svg","circle");
+inner.setAttribute("cx",r.x);inner.setAttribute("cy",r.y);inner.setAttribute("r","5.5");
+inner.setAttribute("fill",colors[r.health]);inner.setAttribute("stroke","#fff");inner.setAttribute("stroke-width","1.5");
+g.appendChild(outer);g.appendChild(inner);
+g.addEventListener('mouseenter',e=>{
+tip.innerHTML='<strong style="color:#F0D5CF">'+r.name+'</strong><br>SST: '+r.temp+'\u00B0C \u00B7 Bleach risk: '+r.bleach+'%<br>Sensors: '+r.sensors+' \u00B7 '+r.region;
+tip.classList.add('show');
+const rect=map.closest('.map-container').getBoundingClientRect();
+const mapRect=map.getBoundingClientRect();
+const sx=r.x/800*mapRect.width;
+const sy=r.y/380*mapRect.height;
+tip.style.left=(sx+mapRect.left-rect.left+14)+'px';
+tip.style.top=(sy+mapRect.top-rect.top-44)+'px';
+});
+g.addEventListener('mouseleave',()=>tip.classList.remove('show'));
+map.appendChild(g);
+});
+
+const bleachData=[
+{region:"Coral Triangle",pct:48,delta:"+6%",color:"#C0453A"},
+{region:"Maldives Atolls",pct:41,delta:"+4%",color:"#C0453A"},
+{region:"Great Barrier Reef",pct:32,delta:"+3%",color:"#C48A32"},
+{region:"Florida Keys",pct:28,delta:"+2%",color:"#C48A32"},
+{region:"Hawaiian Chain",pct:22,delta:"+1%",color:"#C48A32"},
+{region:"Red Sea",pct:12,delta:"-1%",color:"#5A9E7A"},
+];
+const bg=document.getElementById('bleach-grid');
+bleachData.forEach(b=>{
+bg.innerHTML+='<div class="bleach-card"><div class="bleach-region">'+b.region+'</div><div class="bleach-pct" style="color:'+b.color+'">'+b.pct+'%</div><div class="bleach-delta">'+(b.delta.startsWith('+')?'\u2191':'\u2193')+' '+b.delta+' vs last week</div><div class="bar" style="background:'+b.color+'"></div></div>';
+});
+
+const alerts=[
+{name:"Coral Triangle \u2014 Banda Sea",desc:"SST exceeded 30.5\u00B0C for 72h. Mass bleaching imminent.",sev:"critical"},
+{name:"Maldives \u2014 North Mal\u00E9 Atoll",desc:"Rapid thermal stress accumulation. DHW approaching 4\u00B0C-weeks.",sev:"critical"},
+{name:"Great Barrier Reef \u2014 Cairns sector",desc:"Crown-of-thorns outbreak detected by sensor array.",sev:"warning"},
+{name:"Florida Keys \u2014 Lower Keys",desc:"Elevated temperatures forecast for next 10 days.",sev:"warning"},
+{name:"Andaman Sea \u2014 Similan Islands",desc:"Unusual sediment plume detected from satellite imagery.",sev:"warning"},
+];
+const al=document.getElementById('alert-list');
+alerts.forEach(a=>{
+al.innerHTML+='<div class="alert-item"><div class="alert-icon '+a.sev+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div><div><div class="alert-name">'+a.name+'</div><div class="alert-desc">'+a.desc+'</div></div><span class="alert-severity '+a.sev+'">'+a.sev+'</span></div>';
+});
+
+let totalSensors=reefs.reduce((a,r)=>a+r.sensors,0);
+let avgTemp=(reefs.reduce((a,r)=>a+r.temp,0)/reefs.length).toFixed(1);
+let bleachingCount=reefs.filter(r=>r.health==='bleaching').length;
+const mg=document.getElementById('metrics-grid');
+mg.innerHTML='<div class="metric"><div class="metric-label">Active sensors</div><div class="metric-val" style="color:#2C5F5C">'+totalSensors+'</div><div class="metric-sub">Across 12 reef systems</div></div><div class="metric"><div class="metric-label">Avg. SST</div><div class="metric-val" style="color:#C48A32">'+avgTemp+'\u00B0C</div><div class="metric-sub">+0.8\u00B0C above seasonal norm</div></div><div class="metric"><div class="metric-label">Active bleaching events</div><div class="metric-val" style="color:#C0453A">'+bleachingCount+'</div><div class="metric-sub">2 regions critical</div></div><div class="metric"><div class="metric-label">Model confidence</div><div class="metric-val" style="color:#6BA8A0">94.2%</div><div class="metric-sub">Last calibrated 2h ago</div></div>';
+
+const feedSources=["NOAA Satellite","Sensor Array GBR-04","Sentinel-2 Sat","Sensor Maldives-12","MODIS Terra","Argo Float #8841","Sensor FL-Keys-07","Allen Coral Atlas","Copernicus Marine"];
+const feedMsgs=["SST reading: {t}\u00B0C at {loc}","Turbidity spike detected \u2014 {v} NTU","Chlorophyll-a concentration: {v} mg/m\u00B3","Wind speed update: {v} knots, heading NE","Salinity: {v} PSU \u2014 within normal range","Thermal anomaly flagged \u2014 +{v}\u00B0C above mean","DHW accumulation updated: {v}\u00B0C-weeks","Cloud cover: {v}% \u2014 partial satellite visibility","PAR reading: {v} \u00B5mol/m\u00B2/s at depth 5m"];
+const locs=["Cairns Sector","Banda Sea","North Mal\u00E9","Lower Keys","Similan Islands","Fiji Passage","Red Sea North","Galapagos East","Andaman Basin"];
+const feed=document.getElementById('live-feed');
+function addFeedItem(){
+const src=feedSources[Math.floor(Math.random()*feedSources.length)];
+let msg=feedMsgs[Math.floor(Math.random()*feedMsgs.length)];
+msg=msg.replace('{t}',(26+Math.random()*5).toFixed(1)).replace('{v}',(Math.random()*40+1).toFixed(1)).replace('{loc}',locs[Math.floor(Math.random()*locs.length)]);
+const now=new Date();
+const time=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const el=document.createElement('div');
+el.className='feed-item';
+el.style.animation='fadeUp 0.3s ease';
+el.innerHTML='<span class="feed-time">'+time+'</span><div><span class="feed-src">'+src+'</span> '+msg+'</div>';
+feed.insertBefore(el,feed.firstChild);
+if(feed.children.length>30)feed.removeChild(feed.lastChild);
+}
+for(let i=0;i<8;i++)addFeedItem();
+setInterval(addFeedItem,3000);
+
+function jitter(arr){return arr.map(v=>+(v+(Math.random()-0.5)*0.3).toFixed(1))}
+const days=Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-29+i);return d.toLocaleDateString([],{month:'short',day:'numeric'})});
+new Chart(document.getElementById('sstChart'),{
+type:'line',
+data:{labels:days,datasets:[
+{label:'Coral Triangle',data:jitter([29.1,29.2,29.3,29.4,29.5,29.6,29.7,29.8,29.9,30.0,30.0,30.1,30.1,30.0,29.9,30.0,30.1,30.2,30.1,30.0,30.1,30.2,30.3,30.2,30.1,30.0,30.1,30.2,30.1,30.1]),borderColor:'#C0453A',backgroundColor:'rgba(192,69,58,0.05)',fill:true,tension:0.4,pointRadius:0,borderWidth:2},
+{label:'Great Barrier Reef',data:jitter([27.5,27.6,27.7,27.8,27.9,28.0,28.1,28.2,28.2,28.3,28.3,28.4,28.4,28.3,28.2,28.3,28.4,28.4,28.5,28.4,28.3,28.4,28.4,28.5,28.4,28.3,28.4,28.4,28.5,28.4]),borderColor:'#C48A32',backgroundColor:'rgba(196,138,50,0.05)',fill:true,tension:0.4,pointRadius:0,borderWidth:2},
+{label:'Caribbean',data:jitter([26.2,26.3,26.4,26.5,26.5,26.6,26.7,26.7,26.8,26.8,26.7,26.8,26.8,26.7,26.6,26.7,26.8,26.8,26.9,26.8,26.7,26.8,26.8,26.9,26.8,26.7,26.8,26.8,26.9,26.8]),borderColor:'#5A9E7A',backgroundColor:'rgba(90,158,122,0.05)',fill:true,tension:0.4,pointRadius:0,borderWidth:2}
+]},
+options:{responsive:true,maintainAspectRatio:false,
+plugins:{legend:{display:false}},
+scales:{x:{grid:{display:false},ticks:{font:{size:10,family:'DM Sans'},maxTicksLimit:8,color:'#8A8078'}},y:{min:25.5,max:31,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10,family:'DM Sans'},color:'#8A8078',callback:v=>v+'\u00B0C'}}},
+interaction:{mode:'index',intersect:false}}
+});
+
+setInterval(()=>{
+const cards=document.querySelectorAll('#metrics-grid .metric-val');
+if(cards[0])cards[0].textContent=totalSensors+Math.floor(Math.random()*3-1);
+if(cards[1])cards[1].textContent=(parseFloat(avgTemp)+(Math.random()-0.5)*0.2).toFixed(1)+'\u00B0C';
+},8000);
+</script>
